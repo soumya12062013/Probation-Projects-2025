@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'leaderboard_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class QuizScreen extends StatefulWidget {
   const QuizScreen({super.key});
@@ -11,8 +13,23 @@ class QuizScreen extends StatefulWidget {
 }
 
 class _QuizScreenState extends State<QuizScreen> {
+  Future<void> _saveResult() async {
+    try {
+      await FirebaseFirestore.instance.collection('quiz_results').add({
+        'score': _score,
+        'totalQuestions': _questions.length,
+        'date': DateTime.now(),
+        'category': 'Science & Nature',
+      });
+      debugPrint('Result saved successfully!');
+    } catch (e) {
+      debugPrint('Error saving result: $e');
+    }
+  }
+
   int _currentQuestionIndex = 0;
   int _score = 0;
+  bool _isquizfinished = false;
 
   List<Map<String, dynamic>> _questions = [];
   bool _isLoading = true;
@@ -95,8 +112,9 @@ class _QuizScreenState extends State<QuizScreen> {
     }
   }
 
-  void _showResult() {
+  void _showResult() async {
     _timer?.cancel();
+    await _saveResult();
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -113,6 +131,18 @@ class _QuizScreenState extends State<QuizScreen> {
               _startTimer();
             },
             child: const Text("Play Again"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const LeaderboardScreen(),
+                ),
+              );
+            },
+            child: const Text("View Leaderboard"),
           ),
         ],
       ),
@@ -178,6 +208,56 @@ class _QuizScreenState extends State<QuizScreen> {
                 ),
               );
             }).toList(),
+            const Spacer(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _currentQuestionIndex > 0
+                      ? () {
+                          setState(() {
+                            _currentQuestionIndex--;
+                            _timeLeft = 30;
+                          });
+                        }
+                      : null,
+                  icon: const Icon(Icons.arrow_back),
+                  label: const Text("Previous"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: _currentQuestionIndex < _questions.length - 1
+                      ? () {
+                          setState(() {
+                            _currentQuestionIndex++;
+                            _timeLeft = 30;
+                          });
+                        }
+                      : null,
+                  icon: const Icon(Icons.arrow_forward),
+                  label: const Text("Next"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
