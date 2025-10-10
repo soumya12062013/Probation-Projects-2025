@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'Home_screen.dart';
+import 'Login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -11,9 +14,19 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    Timer(Duration(seconds: 2), () {
+    check_login();
+  }
+
+  void check_login() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isloggedin = prefs.getBool('isloggedin') ?? false;
+    await Future.delayed(const Duration(seconds: 3));
+    if (mounted) return;
+    if (isloggedin) {
+      Navigator.pushReplacementNamed(context, 'HomeScreen');
+    } else {
       Navigator.pushReplacementNamed(context, 'LoginScreen');
-    });
+    }
   }
 
   @override
@@ -34,7 +47,7 @@ class _SplashScreenState extends State<SplashScreen> {
             children: [
               TweenAnimationBuilder(
                 tween: Tween<double>(begin: 0.2, end: 1.0),
-                duration: Duration(seconds: 2),
+                duration: Duration(seconds: 3),
                 curve: Curves.elasticOut,
                 builder: (context, scale, child) {
                   return Transform.scale(scale: scale, child: child);

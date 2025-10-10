@@ -23,7 +23,7 @@ class _QuizScreenState extends State<QuizScreen> {
     });
 
     final url = Uri.parse(
-      "https://opentdb.com/api.php?amount=20&category=17&difficulty=medium&type=multiple",
+      "https://opentdb.com/api.php?amount=15&category=17&difficulty=easy&type=multiple",
     );
     final response = await http.get(url);
 
