@@ -4,7 +4,6 @@ import 'package:quiz_app/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'Createacc_screen.dart';
 
-
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -162,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Text("Dont have a account?"),
                     TextButton(
                       onPressed: () {
-                        Navigator.pushReplacement(
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => CreateAccScreen(),

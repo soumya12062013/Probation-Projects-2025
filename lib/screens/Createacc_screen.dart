@@ -29,7 +29,6 @@ class _CreateAccScreenState extends State<CreateAccScreen> {
         password: passwordcontroller.text.trim(),
       );
 
-      // ✅ If success: Go to HomeScreen
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Account created successfully!')));
@@ -81,26 +80,28 @@ class _CreateAccScreenState extends State<CreateAccScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
-                  "Create a New Account",
+                  "Welcome ! to Brain Lab",
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF2980B9),
+                    color: Color.fromARGB(255, 16, 138, 138),
                   ),
                 ),
                 const SizedBox(height: 30),
                 TextFormField(
                   controller: usernameController,
+                  keyboardType: TextInputType.text,
                   decoration: InputDecoration(
                     hintText: "Username",
                     prefixIcon: const Icon(Icons.person, color: Colors.white70),
-                    filled: true,
 
+                    filled: true,
+                    fillColor: Colors.black.withOpacity(0.1),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
                     ),
-                    hintStyle: const TextStyle(color: Colors.white70),
+                    // hintStyle: const TextStyle(color: Colors.white70),
                   ),
                   style: const TextStyle(color: Colors.white),
                 ),
@@ -116,7 +117,6 @@ class _CreateAccScreenState extends State<CreateAccScreen> {
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
                     ),
-                    hintStyle: const TextStyle(color: Colors.white70),
                   ),
                   style: const TextStyle(color: Colors.white),
                 ),
@@ -133,7 +133,7 @@ class _CreateAccScreenState extends State<CreateAccScreen> {
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
                     ),
-                    hintStyle: const TextStyle(color: Colors.white70),
+
                     suffixIcon: IconButton(
                       icon: Icon(
                         _isPasswordVisible

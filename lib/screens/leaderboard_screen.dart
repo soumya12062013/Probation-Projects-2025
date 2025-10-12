@@ -20,7 +20,7 @@ class LeaderboardScreen extends StatelessWidget {
         stream: FirebaseFirestore.instance
             .collection('quiz_results')
             .orderBy('score', descending: true)
-            .limit(10) // top 10 users
+            .limit(10)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {

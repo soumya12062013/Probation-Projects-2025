@@ -20,6 +20,7 @@ class _QuizScreenState extends State<QuizScreen> {
         'totalQuestions': _questions.length,
         'date': DateTime.now(),
         'category': 'Science & Nature',
+        'timestamp': FieldValue.serverTimestamp(),
       });
       debugPrint('Result saved successfully!');
     } catch (e) {
@@ -29,7 +30,7 @@ class _QuizScreenState extends State<QuizScreen> {
 
   int _currentQuestionIndex = 0;
   int _score = 0;
-  bool _isquizfinished = false;
+  //bool _isquizfinished = false;
 
   List<Map<String, dynamic>> _questions = [];
   bool _isLoading = true;
@@ -199,7 +200,7 @@ class _QuizScreenState extends State<QuizScreen> {
                   onPressed: () => _nextQuestion(option),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 15),
-                    backgroundColor: Colors.blueAccent,
+                    backgroundColor: Color.fromARGB(255, 126, 217, 229),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -246,7 +247,7 @@ class _QuizScreenState extends State<QuizScreen> {
                   icon: const Icon(Icons.arrow_forward),
                   label: const Text("Next"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
+                    backgroundColor: Color.fromARGB(255, 126, 217, 229),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
                       vertical: 12,
@@ -258,6 +259,7 @@ class _QuizScreenState extends State<QuizScreen> {
                 ),
               ],
             ),
+            SizedBox(height: 400),
           ],
         ),
       ),
