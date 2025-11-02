@@ -1,50 +1,16 @@
+# agrisense
 
-# Probation-Projects-2025
+A new Flutter project.
 
-Welcome to GDSC-AKGEC Probation Projects for 2025! 
+## Getting Started
 
+This project is a starting point for a Flutter application.
 
+A few resources to get you started if this is your first Flutter project:
 
-## How to add your project to this repository?
+- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
+- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-
-#### 1. Fork the repository into your account
-#### 2. Clone the repository into your locale 
-
-
-```bash
-git clone https://github.com/{your_id}/Probation-Projects-2025.git
-```
-
-#### 3. Create a branch using
-
-```bash
-git branch {branch_name}
-```
-
-#### 4. Checkout the branch using
-
-```bash
-git checkout {branch_name}
-```
-
-#### 5. Make a folder with folder name {Name_Surname} and put in all the files in the folder Remember to remove .git folder from the files otherwise we will not be able to access the folder
-
-
-#### 6. Commit the changes on the branch
-
-```bash
-git add .
-git commit -m "Added project by {Your Name}"
-```
-
-#### 7. Push the branch to the repository using
-
-
-```bash
-git push origin {branch_name}
-```
-
-#### 8. Go to Github and create a Pull Request for the same
-
-#### The reviewers will be notified of the pull request and  after reviewing, will merge the pull request into the main branch.
+For help getting started with Flutter development, view the
+[online documentation](https://docs.flutter.dev/), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.
