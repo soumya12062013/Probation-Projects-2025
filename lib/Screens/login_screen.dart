@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'signin_screen.dart';
 import 'home_sreen.dart';
+import 'auth_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,6 +13,51 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   TextEditingController _emailcontroller = TextEditingController();
   TextEditingController _passwordcontroller = TextEditingController();
+  bool _isLoading = false;
+  final _formKey = GlobalKey<FormState>();
+  final _auth = AuthService();
+
+  @override
+  void dispose() {
+    _emailcontroller.dispose();
+    _passwordcontroller.dispose();
+    super.dispose();
+  }
+
+  Future<void> logIn() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    final result = await _auth.login(
+      email: _emailcontroller.text.trim(),
+      password: _passwordcontroller.text,
+    );
+
+    setState(() => _isLoading = false);
+
+    if (!mounted) return;
+
+    if (result['success']) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Login successful!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result['message'] ?? 'Login failed'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +160,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               return null;
                             },
                           ),
-
                           Padding(
                             padding: const EdgeInsets.only(top: 8.0),
                             child: Align(
