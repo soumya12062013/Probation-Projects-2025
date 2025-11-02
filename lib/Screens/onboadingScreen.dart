@@ -93,7 +93,7 @@ class _OnBoadingScreenState extends State<OnBoadingScreen> {
                 color: const Color.fromARGB(255, 7, 110, 26),
                 title: 'Field segmentation',
                 subtitle: 'dggjh',
-                imageAsset: 'Assets/Images/Screenshot 2025-11-01 123018[1].png',
+                imageAsset: 'Assets/Images/screenshot.png',
                 description: 'jhhk',
               ),
             ],
