@@ -10,6 +10,9 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  TextEditingController _emailcontroller = TextEditingController();
+  TextEditingController _passwordcontroller = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,20 +68,51 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           const SizedBox(height: 16),
                           TextFormField(
+                            controller: _emailcontroller,
                             decoration: const InputDecoration(
                               labelText: 'Email',
                               hintText: 'student@gmail.com',
                               border: OutlineInputBorder(),
                             ),
+
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your email';
+                              }
+
+                              final bool emailValid = RegExp(
+                                r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
+                              ).hasMatch(value);
+
+                              if (!emailValid) {
+                                return 'Please enter a valid email';
+                              }
+
+                              return null;
+                            },
                           ),
                           const SizedBox(height: 16),
+
                           TextFormField(
                             obscureText: true,
+                            controller: _passwordcontroller,
                             decoration: const InputDecoration(
                               labelText: 'Password',
                               hintText: 'Enter your password',
                               border: OutlineInputBorder(),
                             ),
+
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your password';
+                              }
+
+                              if (value.length < 6) {
+                                return 'Password must be at least 6 characters long';
+                              }
+
+                              return null;
+                            },
                           ),
 
                           Padding(
