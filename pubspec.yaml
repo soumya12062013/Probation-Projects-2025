@@ -34,6 +34,9 @@ dependencies:
   http: ^1.5.0
   image_picker: ^1.2.0
   lucide_icons: ^0.257.0
+  percent_indicator: ^4.2.5
+  lucide_flutter: ^0.552.0
+  dropdown_button2: ^2.3.9
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
