@@ -46,7 +46,7 @@ class _DiseaseDetectionScreenState extends State<DiseaseDetectionScreen> {
     });
 
     try {
-      final response = await _service.disease(plant_image: _image!);
+      final response = await _service.disease(image: _image!);
 
       if (response['success'] == true) {
         setState(() {

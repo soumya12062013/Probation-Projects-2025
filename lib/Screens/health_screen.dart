@@ -54,8 +54,8 @@ class _CropHealthAnalysisState extends State<CropHealthAnalysis> {
       File plantFile = File(_plantImage!.path);
       File maskFile = File(_maskedImage!.path);
       Map<dynamic, dynamic> response = await _service.fieldsegment(
-        plant_img: plantFile,
-        mask_img: maskFile,
+        plant_image: plantFile,
+        mask_image: maskFile,
       );
       if (response['success'] == true) {
         final data = response['data'];

@@ -5,13 +5,11 @@ import 'package:lucide_icons/lucide_icons.dart';
 class BottomNavigation extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTabSelected;
-
   const BottomNavigation({
     super.key,
     required this.currentIndex,
     required this.onTabSelected,
   });
-
   @override
   Widget build(BuildContext context) {
     final navItems = [
@@ -21,7 +19,6 @@ class BottomNavigation extends StatelessWidget {
       {'icon': LucideIcons.trendingUp, 'label': 'Yield'},
       {'icon': LucideIcons.fileText, 'label': 'Reports'},
     ];
-
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -39,6 +36,7 @@ class BottomNavigation extends StatelessWidget {
         top: false,
         left: false,
         right: false,
+        bottom: true,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 6),
           child: Row(
