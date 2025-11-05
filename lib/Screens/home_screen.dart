@@ -28,51 +28,37 @@ class _HomeScreenState extends State<HomeScreen> {
     const CropYieldForm(),
     const ReportsScreen(),
 
-    Center(
-      child: Text(
-        'Yield Data Coming Soon...',
-        style: TextStyle(fontSize: 20, color: Colors.black),
-      ),
-    ),
-    Center(
-      child: Text(
-        'Reports Section',
-        style: TextStyle(fontSize: 20, color: Colors.black),
-      ),
-    ),
+    // Center(
+    //   child: Text(
+    //     'Yield Data Coming Soon...',
+    //     style: TextStyle(fontSize: 20, color: Colors.black),
+    //   ),
+    // ),
+    // Center(
+    //   child: Text(
+    //     'Reports Section',
+    //     style: TextStyle(fontSize: 20, color: Colors.black),
+    //   ),
+    // ),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 23, 79, 25),
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 89, 165, 91),
-        title: const Text(
-          'Agrisense',
-          style: TextStyle(
-            fontSize: 20,
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        // actions: [
-        //   Padding(
-        //     padding: const EdgeInsets.only(right: 20.0),
-        //     child: Center(
-        //       child: Text(
-        //         'Home',
-        //         style: TextStyle(
-        //           color: Colors.white.withOpacity(0.9),
-        //           fontWeight: FontWeight.w300,
-        //           fontSize: 16,
-        //         ),
-        //       ),
-        //     ),
-        //   ),
-        // ],
-      ),
 
+      // appBar: AppBar(
+      //   backgroundColor: const Color.fromARGB(255, 89, 165, 91),
+      //   title: const Text(
+      //     'Agrisense',
+      //     style: TextStyle(
+      //       fontSize: 20,
+      //       color: Colors.white,
+      //       fontWeight: FontWeight.bold,
+      //     ),
+      //   ),
+
+      // ),
       body: _screens[_selectedIndex],
 
       bottomNavigationBar: BottomNavigation(

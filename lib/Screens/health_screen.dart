@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'service_screen.dart';
 
 class CropHealthAnalysis extends StatefulWidget {
   const CropHealthAnalysis({Key? key}) : super(key: key);
@@ -12,6 +13,7 @@ class CropHealthAnalysis extends StatefulWidget {
 }
 
 class _CropHealthAnalysisState extends State<CropHealthAnalysis> {
+  final ServiceScreen _service = ServiceScreen();
   XFile? _plantImage;
   XFile? _maskedImage;
   bool _isAnalyzing = false;
@@ -32,22 +34,76 @@ class _CropHealthAnalysisState extends State<CropHealthAnalysis> {
   }
 
   Future<void> _handleAnalyze() async {
+    if (_plantImage == null || _maskedImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please upload both the plant and mask images.'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _isAnalyzing = true;
+      _results = null;
     });
 
-    await Future.delayed(const Duration(seconds: 2));
+    // await Future.delayed(const Duration(seconds: 2));
+    try {
+      File plantFile = File(_plantImage!.path);
+      File maskFile = File(_maskedImage!.path);
+      Map<dynamic, dynamic> response = await _service.fieldsegment(
+        plant_img: plantFile,
+        mask_img: maskFile,
+      );
+      if (response['success'] == true) {
+        final data = response['data'];
+        double healthy = (data['healthy_area'] as num).toDouble();
+        double weed = (data['weed_area'] as num).toDouble();
+        double soil = (data['soil_area'] as num).toDouble();
+        double totalVegetation = healthy + weed;
+        double overallHealth = (totalVegetation > 0)
+            ? (healthy / totalVegetation) * 100
+            : 0;
 
-    setState(() {
-      _results = {
-        "healthyArea": 75.3,
-        "weedArea": 12.5,
-        "soilArea": 12.2,
-        "overallHealth": 85,
-        "status": "Good",
-      };
-      _isAnalyzing = false;
-    });
+        String status;
+        if (overallHealth >= 80) {
+          status = "Good";
+        } else if (overallHealth >= 60) {
+          status = "Moderate";
+        } else {
+          status = "Poor";
+        }
+        setState(() {
+          _results = {
+            "healthyArea": healthy,
+            "weedArea": weed,
+            "soilArea": soil,
+            "overallHealth": overallHealth,
+            "status": status,
+          };
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('API Error: ${response['message']}'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('An error occurred: $e'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+    } finally {
+      setState(() {
+        _isAnalyzing = false;
+      });
+    }
   }
 
   @override
@@ -134,7 +190,6 @@ class _CropHealthAnalysisState extends State<CropHealthAnalysis> {
   }
 
   Widget _buildUploadSection() {
-    // React: <Card className="border-green-100 shadow-md">
     return Card(
       elevation: 2,
       shadowColor: Colors.green[50],
@@ -256,14 +311,11 @@ class _CropHealthAnalysisState extends State<CropHealthAnalysis> {
         _buildOverallHealthCard(),
         const SizedBox(height: 16),
         _buildSegmentationCard(),
-        const SizedBox(height: 16),
-        _buildRecommendationsCard(),
       ],
     );
   }
 
   Widget _buildOverallHealthCard() {
-    // React: <Card className="border-emerald-200 shadow-lg ...">
     return Card(
       elevation: 3,
       shadowColor: Colors.green[100],
@@ -299,7 +351,7 @@ class _CropHealthAnalysisState extends State<CropHealthAnalysis> {
                 ],
               ),
               const SizedBox(height: 24),
-              // React: <div className="relative inline-flex ...">
+
               CircularPercentIndicator(
                 radius: 64.0,
                 lineWidth: 8.0,
@@ -333,7 +385,6 @@ class _CropHealthAnalysisState extends State<CropHealthAnalysis> {
   }
 
   Widget _buildSegmentationCard() {
-    // React: <Card className="border-green-100 shadow-md">
     return Card(
       elevation: 2,
       shadowColor: Colors.green[50],
@@ -450,93 +501,7 @@ class _CropHealthAnalysisState extends State<CropHealthAnalysis> {
     );
   }
 
-  Widget _buildRecommendationsCard() {
-    // React: <Card className="border-amber-200 ...">
-    return Card(
-      elevation: 2,
-      shadowColor: Colors.amber[50],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.amber[200]!),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          gradient: LinearGradient(
-            colors: [Colors.amber[50]!, Colors.yellow[50]!],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(LucideIcons.trendingUp, color: Colors.amber[700], size: 24),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Health Insights',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Your crop shows good overall health with ${_results!['healthyArea']}% healthy vegetation.',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    if (_results!['weedArea'] > 10)
-                      Container(
-                        margin: const EdgeInsets.only(top: 8),
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.yellow[100]!.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(
-                              LucideIcons.bookAlert,
-                              color: Colors.yellow[800],
-                              size: 16,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'Weed coverage is moderate. Consider weed management strategies.',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.yellow[800],
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildInfoCard() {
-    // React: <Card className="border-emerald-200 ...">
     return Card(
       elevation: 2,
       shadowColor: Colors.green[50],

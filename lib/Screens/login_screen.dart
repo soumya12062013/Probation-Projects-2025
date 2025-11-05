@@ -104,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(24.0),
-                      // 1. FIX: Added the key to the Form widget
+
                       child: Form(
                         key: _formKey,
                         child: Column(
@@ -212,7 +212,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                   TextButton(
                                     onPressed: () {
-                                      // 3. FIX: Changed to Navigator.push
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
@@ -223,6 +222,26 @@ class _LoginScreenState extends State<LoginScreen> {
                                     },
                                     child: Text(
                                       'Sign up',
+                                      style: TextStyle(
+                                        color: Colors.green[800],
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: 10),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const HomeScreen(),
+                                        ),
+                                      );
+                                    },
+                                    child: Text(
+                                      'Skip',
                                       style: TextStyle(
                                         color: Colors.green[800],
                                         fontWeight: FontWeight.bold,

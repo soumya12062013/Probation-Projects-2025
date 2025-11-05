@@ -12,8 +12,6 @@ class CropYieldForm extends StatefulWidget {
 }
 
 class _CropYieldFormState extends State<CropYieldForm> {
-  // State variables from React
-  // Controllers for text inputs
   final _cropTypeController = TextEditingController(text: 'Tomato');
   final _diseaseClassController = TextEditingController(text: 'Early Blight');
   final _healthyAreaController = TextEditingController(text: '75.3');
@@ -22,21 +20,17 @@ class _CropYieldFormState extends State<CropYieldForm> {
   final _ndviController = TextEditingController();
   final _historicalYieldController = TextEditingController();
 
-  // Image files
   XFile? _plantImage;
   XFile? _maskedImage;
 
-  // Dropdown value
   String? _weather;
   final List<String> _weatherConditions = ['Moderate', 'Warm', 'Cold'];
 
-  // Prediction results
   String _predictedYield = '';
   String _uncertaintyRange = '';
 
   final ImagePicker _picker = ImagePicker();
 
-  // React: handleImageUpload
   Future<void> _handleImageUpload(
     ImageSource source,
     void Function(XFile?) setImage,
@@ -49,16 +43,12 @@ class _CropYieldFormState extends State<CropYieldForm> {
     }
   }
 
-  // React: handleSubmit
   void _handleSubmit() {
-    // TODO: Integrate with backend model
-    // Mock prediction for demonstration
     setState(() {
       _predictedYield = '245.8 kg/hectare';
       _uncertaintyRange = '±15.3 kg/hectare';
     });
 
-    // Logging form data
     print('Form Data: {');
     print('  cropType: ${_cropTypeController.text},');
     print('  diseaseClass: ${_diseaseClassController.text},');
@@ -79,7 +69,6 @@ class _CropYieldFormState extends State<CropYieldForm> {
 
   @override
   void dispose() {
-    // Dispose all controllers
     _cropTypeController.dispose();
     _diseaseClassController.dispose();
     _healthyAreaController.dispose();
@@ -92,13 +81,11 @@ class _CropYieldFormState extends State<CropYieldForm> {
 
   @override
   Widget build(BuildContext context) {
-    // Define colors from React component
     final Color primaryColor = Colors.green[700]!;
     final Color secondaryColor = Colors.green[800]!;
     final Color lightBorder = Colors.green[200]!;
     final Color lightBg = Colors.grey[50]!;
 
-    // Input field decoration
     InputDecoration inputDecoration(String label) => InputDecoration(
       labelText: label,
       labelStyle: TextStyle(color: secondaryColor),
@@ -125,9 +112,8 @@ class _CropYieldFormState extends State<CropYieldForm> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Header
             _buildHeader(),
-            // Form Container
+
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: 16.0,
@@ -135,7 +121,6 @@ class _CropYieldFormState extends State<CropYieldForm> {
               ),
               child: Column(
                 children: [
-                  // Disease Information Section
                   _buildFormCard(
                     title: "Disease Information",
                     children: [
@@ -154,30 +139,30 @@ class _CropYieldFormState extends State<CropYieldForm> {
                   ),
                   const SizedBox(height: 16),
                   // Image Upload Section
-                  _buildFormCard(
-                    title: "Image Uploads",
-                    children: [
-                      _buildImageUploader(
-                        title: 'Upload Plant Image',
-                        icon: LucideIcons.upload,
-                        file: _plantImage,
-                        onPressed: () => _handleImageUpload(
-                          ImageSource.gallery,
-                          (file) => _plantImage = file,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      _buildImageUploader(
-                        title: 'Upload Masked RGB Image',
-                        icon: LucideIcons.camera,
-                        file: _maskedImage,
-                        onPressed: () => _handleImageUpload(
-                          ImageSource.gallery,
-                          (file) => _maskedImage = file,
-                        ),
-                      ),
-                    ],
-                  ),
+                  // _buildFormCard(
+                  //   title: "Image Uploads",
+                  //   children: [
+                  //     _buildImageUploader(
+                  //       title: 'Upload Plant Image',
+                  //       icon: LucideIcons.upload,
+                  //       file: _plantImage,
+                  //       onPressed: () => _handleImageUpload(
+                  //         ImageSource.gallery,
+                  //         (file) => _plantImage = file,
+                  //       ),
+                  //     ),
+                  //     const SizedBox(height: 16),
+                  //     _buildImageUploader(
+                  //       title: 'Upload Masked RGB Image',
+                  //       icon: LucideIcons.camera,
+                  //       file: _maskedImage,
+                  //       onPressed: () => _handleImageUpload(
+                  //         ImageSource.gallery,
+                  //         (file) => _maskedImage = file,
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
                   const SizedBox(height: 16),
                   // Area Analysis Section
                   _buildFormCard(
@@ -262,7 +247,7 @@ class _CropYieldFormState extends State<CropYieldForm> {
                     label: const Text('Predict Yield'),
                     style:
                         ElevatedButton.styleFrom(
-                          foregroundColor: Colors.white,
+                          foregroundColor: Colors.green,
                           backgroundColor: Colors.transparent,
                           minimumSize: const Size(double.infinity, 52),
                           shape: RoundedRectangleBorder(
@@ -388,52 +373,52 @@ class _CropYieldFormState extends State<CropYieldForm> {
   }
 
   // Image uploader widget
-  Widget _buildImageUploader({
-    required String title,
-    required IconData icon,
-    required XFile? file,
-    required VoidCallback onPressed,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: Colors.green[900],
-          ),
-        ),
-        const SizedBox(height: 8),
-        OutlinedButton.icon(
-          onPressed: onPressed,
-          icon: Icon(icon, size: 16),
-          label: Text(file != null ? 'Change Image' : 'Choose Image'),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: Colors.green[700],
-            minimumSize: const Size(double.infinity, 44),
-            side: BorderSide(color: Colors.green[300]!),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        ),
-        if (file != null)
-          Container(
-            margin: const EdgeInsets.only(top: 12),
-            height: 192,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.green[200]!, width: 2),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: Image.file(File(file.path), fit: BoxFit.cover),
-          ),
-      ],
-    );
-  }
+  // Widget _buildImageUploader({
+  //   required String title,
+  //   required IconData icon,
+  //   required XFile? file,
+  //   required VoidCallback onPressed,
+  // }) {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       Text(
+  //         title,
+  //         style: TextStyle(
+  //           fontSize: 14,
+  //           fontWeight: FontWeight.w500,
+  //           color: Colors.green[900],
+  //         ),
+  //       ),
+  //       const SizedBox(height: 8),
+  //       OutlinedButton.icon(
+  //         onPressed: onPressed,
+  //         icon: Icon(icon, size: 16),
+  //         label: Text(file != null ? 'Change Image' : 'Choose Image'),
+  //         style: OutlinedButton.styleFrom(
+  //           foregroundColor: Colors.green[700],
+  //           minimumSize: const Size(double.infinity, 44),
+  //           side: BorderSide(color: Colors.green[300]!),
+  //           shape: RoundedRectangleBorder(
+  //             borderRadius: BorderRadius.circular(8),
+  //           ),
+  //         ),
+  //       ),
+  //       if (file != null)
+  //         Container(
+  //           margin: const EdgeInsets.only(top: 12),
+  //           height: 192,
+  //           width: double.infinity,
+  //           decoration: BoxDecoration(
+  //             borderRadius: BorderRadius.circular(12),
+  //             border: Border.all(color: Colors.green[200]!, width: 2),
+  //           ),
+  //           clipBehavior: Clip.antiAlias,
+  //           child: Image.file(File(file.path), fit: BoxFit.cover),
+  //         ),
+  //     ],
+  //   );
+  // }
 
   // Dropdown widget
   Widget _buildWeatherDropdown() {
