@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'service_screen.dart';
 
 class DiseaseDetectionScreen extends StatefulWidget {
   const DiseaseDetectionScreen({super.key});
@@ -11,6 +12,7 @@ class DiseaseDetectionScreen extends StatefulWidget {
 }
 
 class _DiseaseDetectionScreenState extends State<DiseaseDetectionScreen> {
+  final ServiceScreen _service = ServiceScreen();
   File? _image;
   bool _isAnalyzing = false;
   Map<String, dynamic>? _results;
@@ -18,7 +20,10 @@ class _DiseaseDetectionScreenState extends State<DiseaseDetectionScreen> {
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImage() async {
-    final picked = await _picker.pickImage(source: ImageSource.gallery);
+    final picked = await _picker.pickImage(
+      source: ImageSource.gallery,
+      preferredCameraDevice: CameraDevice.rear,
+    );
     if (picked != null) {
       setState(() {
         _image = File(picked.path);
@@ -27,28 +32,46 @@ class _DiseaseDetectionScreenState extends State<DiseaseDetectionScreen> {
     }
   }
 
-  void _analyzeImage() {
+  Future<void> _analyzeImage() async {
+    if (_image == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select an image first.')),
+      );
+      return;
+    }
+
     setState(() {
       _isAnalyzing = true;
+      _results = null;
     });
 
-    Timer(const Duration(seconds: 2), () {
+    try {
+      final response = await _service.disease(plant_image: _image!);
+
+      if (response['success'] == true) {
+        setState(() {
+          _results = response['data'] as Map<String, dynamic>;
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${response['message']}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('A client-side error occurred: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
       setState(() {
         _isAnalyzing = false;
-        _results = {
-          'cropType': 'Tomato',
-          'disease': 'Early Blight',
-          'confidence': 92,
-          'severity': 'Moderate',
-          'recommendations': [
-            'Remove affected leaves immediately',
-            'Apply copper-based fungicide',
-            'Improve air circulation around plants',
-            'Avoid overhead watering',
-          ],
-        };
       });
-    });
+    }
   }
 
   @override
@@ -196,10 +219,7 @@ class _DiseaseDetectionScreenState extends State<DiseaseDetectionScreen> {
               ),
             ),
             const SizedBox(height: 20),
-
-            // Results Section
             if (_results != null) ...[
-              // Detection Results
               Card(
                 color: Colors.green.shade50,
                 elevation: 3,
@@ -222,48 +242,8 @@ class _DiseaseDetectionScreenState extends State<DiseaseDetectionScreen> {
                       const SizedBox(height: 12),
                       _infoTile("Crop Type", _results!['cropType']),
                       const SizedBox(height: 10),
-                      _infoTile(
-                        "Disease Detected",
-                        _results!['disease'],
-                        trailing: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.yellow.shade100,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            _results!['severity'],
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.orange,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            "Confidence Level",
-                            style: TextStyle(
-                              color: Colors.black54,
-                              fontSize: 14,
-                            ),
-                          ),
-                          Text(
-                            "${_results!['confidence']}%",
-                            style: const TextStyle(
-                              color: Colors.green,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
+                      _infoTile("Disease Class", _results!['disease']),
+
                       const SizedBox(height: 8),
                       LinearProgressIndicator(
                         value: _results!['confidence'] / 100,
@@ -277,75 +257,7 @@ class _DiseaseDetectionScreenState extends State<DiseaseDetectionScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-
-              // Severity Assessment
-              _infoCard(
-                icon: Icons.warning_amber_rounded,
-                color: Colors.orange,
-                title: "Severity Assessment",
-                message:
-                    "Disease is at a moderate stage. Early intervention recommended to prevent spread.",
-              ),
               const SizedBox(height: 20),
-
-              // Recommendations
-              Card(
-                elevation: 3,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Treatment Recommendations",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      ...List.generate(
-                        _results!['recommendations'].length,
-                        (i) => Container(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.green.shade50,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.green.shade100),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.check_circle,
-                                color: Colors.green,
-                                size: 18,
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  _results!['recommendations'][i],
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Info card
               _infoCard(
                 icon: Icons.info_outline,
                 color: Colors.blue,
@@ -354,14 +266,13 @@ class _DiseaseDetectionScreenState extends State<DiseaseDetectionScreen> {
                     "Connect with agricultural experts for personalized advice and treatment plans.",
               ),
             ],
-
             if (_results == null && _image == null)
               _infoCard(
                 icon: Icons.info_outline,
                 color: Colors.green,
                 title: "How It Works",
                 message:
-                    "1️⃣ Take a clear photo of the affected plant part.\n2️⃣ Our AI analyzes it.\n3️⃣ Get instant diagnosis and treatment suggestions.",
+                    "1️⃣ Take a clear photo of the affected plant part.\n2️⃣ Our AI analyzes it.\n3️⃣ Get instant diagnosis.",
               ),
           ],
         ),
