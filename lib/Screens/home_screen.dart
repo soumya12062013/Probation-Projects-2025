@@ -28,17 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const CropYieldForm(),
     const ReportsScreen(),
 
-    // Center(
-    //   child: Text(
-    //     'Yield Data Coming Soon...',
-    //     style: TextStyle(fontSize: 20, color: Colors.black),
-    //   ),
-    // ),
-    // Center(
-    //   child: Text(
-    //     'Reports Section',
-    //     style: TextStyle(fontSize: 20, color: Colors.black),
-    //   ),
+    
     // ),
   ];
 
@@ -47,18 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 23, 79, 25),
 
-      // appBar: AppBar(
-      //   backgroundColor: const Color.fromARGB(255, 89, 165, 91),
-      //   title: const Text(
-      //     'Agrisense',
-      //     style: TextStyle(
-      //       fontSize: 20,
-      //       color: Colors.white,
-      //       fontWeight: FontWeight.bold,
-      //     ),
-      //   ),
-
-      // ),
+     
       body: _screens[_selectedIndex],
 
       bottomNavigationBar: BottomNavigation(
@@ -245,7 +224,7 @@ class HomeContent extends StatelessWidget {
                     left: 150,
                     child: ElevatedButton(
                       onPressed: () {
-                        // Navigate to scan/disease detection screen
+                        
                         Navigator.push(
                           context,
                           MaterialPageRoute(

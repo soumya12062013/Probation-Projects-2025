@@ -106,7 +106,7 @@ class _OnBoadingScreenState extends State<OnBoadingScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextButton(
-                  onPressed: _navigateToHome, // Use the same "skip" function
+                  onPressed: _navigateToHome, 
                   style: TextButton.styleFrom(
                     backgroundColor: Colors.black.withOpacity(0.3),
                     foregroundColor: Colors.white,

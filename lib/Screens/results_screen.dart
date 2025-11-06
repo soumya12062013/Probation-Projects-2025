@@ -166,12 +166,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
               ),
             ),
 
-            // Body
+           
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  // Stats Grid
+                 
                   GridView.builder(
                     itemCount: stats.length,
                     shrinkWrap: true,

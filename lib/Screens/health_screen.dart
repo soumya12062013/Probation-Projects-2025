@@ -4,7 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'service_screen.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 class CropHealthAnalysis extends StatefulWidget {
   const CropHealthAnalysis({Key? key}) : super(key: key);
 
@@ -84,6 +84,7 @@ class _CropHealthAnalysisState extends State<CropHealthAnalysis> {
             "status": status,
           };
         });
+        await _saveResultsToPrefs(healthy, weed, soil, overallHealth, status);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -104,6 +105,14 @@ class _CropHealthAnalysisState extends State<CropHealthAnalysis> {
         _isAnalyzing = false;
       });
     }
+  }
+  Future<void> _saveResultsToPrefs(double healthy, double weed, double soil, double overallHealth, String status) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('healthyArea', healthy);
+    await prefs.setDouble('weedArea', weed);
+    await prefs.setDouble('soilArea', soil);
+    await prefs.setDouble('overallHealth', overallHealth);
+    await prefs.setString('healthStatus', status);
   }
 
   @override

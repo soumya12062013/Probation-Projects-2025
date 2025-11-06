@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'service_screen.dart';
 
 class CropYieldForm extends StatefulWidget {
   const CropYieldForm({Key? key}) : super(key: key);
@@ -12,11 +14,13 @@ class CropYieldForm extends StatefulWidget {
 }
 
 class _CropYieldFormState extends State<CropYieldForm> {
-  final _cropTypeController = TextEditingController(text: 'Tomato');
-  final _diseaseClassController = TextEditingController(text: 'Early Blight');
-  final _healthyAreaController = TextEditingController(text: '75.3');
-  final _weedAreaController = TextEditingController(text: '12.5');
-  final _soilAreaController = TextEditingController(text: '12.2');
+  final ServiceScreen _service = ServiceScreen();
+
+  final _cropTypeController = TextEditingController();
+  final _diseaseClassController = TextEditingController();
+  final _healthyAreaController = TextEditingController();
+  final _weedAreaController = TextEditingController();
+  final _soilAreaController = TextEditingController();
   final _ndviController = TextEditingController();
   final _historicalYieldController = TextEditingController();
 
@@ -31,40 +35,102 @@ class _CropYieldFormState extends State<CropYieldForm> {
 
   final ImagePicker _picker = ImagePicker();
 
-  Future<void> _handleImageUpload(
-    ImageSource source,
-    void Function(XFile?) setImage,
-  ) async {
-    final XFile? file = await _picker.pickImage(source: source);
-    if (file != null) {
-      setState(() {
-        setImage(file);
-      });
-    }
+  @override
+  void initState() {
+    super.initState();
+    _loadSharedData();
   }
 
-  void _handleSubmit() {
+  Future<void> _loadSharedData() async {
+    final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _predictedYield = '245.8 kg/hectare';
-      _uncertaintyRange = '±15.3 kg/hectare';
+      if (prefs.containsKey('cropType')) {
+        _cropTypeController.text = prefs.getString('cropType') ?? '';
+      }
+      if (prefs.containsKey('disease')) {
+        _diseaseClassController.text = prefs.getString('disease') ?? '';
+      }
+
+      if (prefs.containsKey('healthyArea')) {
+        _healthyAreaController.text = (prefs.getDouble('healthyArea') ?? 0)
+            .toStringAsFixed(1);
+      }
+      if (prefs.containsKey('weedArea')) {
+        _weedAreaController.text = (prefs.getDouble('weedArea') ?? 0)
+            .toStringAsFixed(1);
+      }
+      if (prefs.containsKey('soilArea')) {
+        _soilAreaController.text = (prefs.getDouble('soilArea') ?? 0)
+            .toStringAsFixed(1);
+      }
+    });
+  }
+
+  Future<void> _handleSubmit() async {
+    // Basic validation to ensure required fields are filled
+    if (_cropTypeController.text.isEmpty ||
+        _diseaseClassController.text.isEmpty ||
+        _healthyAreaController.text.isEmpty ||
+        _weedAreaController.text.isEmpty ||
+        _soilAreaController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please ensure all analysis data is loaded.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    // Show loading indicator (optional but recommended)
+    setState(() {
+      _predictedYield = 'Calculating...';
+      _uncertaintyRange = '';
     });
 
-    print('Form Data: {');
-    print('  cropType: ${_cropTypeController.text},');
-    print('  diseaseClass: ${_diseaseClassController.text},');
-    print(
-      '  plantImage: ${_plantImage != null ? 'Uploaded' : 'Not uploaded'},',
-    );
-    print(
-      '  maskedImage: ${_maskedImage != null ? 'Uploaded' : 'Not uploaded'},',
-    );
-    print('  healthyArea: ${_healthyAreaController.text},');
-    print('  weedArea: ${_weedAreaController.text},');
-    print('  soilArea: ${_soilAreaController.text},');
-    print('  ndvi: ${_ndviController.text},');
-    print('  weather: $_weather,');
-    print('  historicalYield: ${_historicalYieldController.text}');
-    print('}');
+    try {
+      // Parse string values to double for the API
+      final double healthyArea = double.parse(_healthyAreaController.text);
+      final double weedArea = double.parse(_weedAreaController.text);
+      final double soilArea = double.parse(_soilAreaController.text);
+
+      // Call the API
+      final response = await _service.yieldPrediction(
+        cropType: _cropTypeController.text,
+        diseaseClass: _diseaseClassController.text,
+        healthyArea: healthyArea,
+        weedArea: weedArea,
+        soilArea: soilArea,
+      );
+
+      if (response['success'] == true) {
+        final data = response['data'];
+        setState(() {
+          _predictedYield = '${data['predicted_yield']} kg/hectare';
+          _uncertaintyRange = '±${data['uncertainty']} kg/hectare';
+        });
+      } else {
+        setState(() {
+          _predictedYield = 'Error';
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed: ${response['message']}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _predictedYield = 'Error';
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('An error occurred: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -113,7 +179,6 @@ class _CropYieldFormState extends State<CropYieldForm> {
         child: Column(
           children: [
             _buildHeader(),
-
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: 16.0,
@@ -137,32 +202,6 @@ class _CropYieldFormState extends State<CropYieldForm> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  // Image Upload Section
-                  // _buildFormCard(
-                  //   title: "Image Uploads",
-                  //   children: [
-                  //     _buildImageUploader(
-                  //       title: 'Upload Plant Image',
-                  //       icon: LucideIcons.upload,
-                  //       file: _plantImage,
-                  //       onPressed: () => _handleImageUpload(
-                  //         ImageSource.gallery,
-                  //         (file) => _plantImage = file,
-                  //       ),
-                  //     ),
-                  //     const SizedBox(height: 16),
-                  //     _buildImageUploader(
-                  //       title: 'Upload Masked RGB Image',
-                  //       icon: LucideIcons.camera,
-                  //       file: _maskedImage,
-                  //       onPressed: () => _handleImageUpload(
-                  //         ImageSource.gallery,
-                  //         (file) => _maskedImage = file,
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
                   const SizedBox(height: 16),
                   // Area Analysis Section
                   _buildFormCard(
@@ -263,7 +302,6 @@ class _CropYieldFormState extends State<CropYieldForm> {
                           ),
                           elevation: 0,
                         ).copyWith(
-                          // We apply the gradient via a Container wrapper
                           backgroundColor: MaterialStateProperty.all(
                             Colors.transparent,
                           ),
@@ -372,55 +410,6 @@ class _CropYieldFormState extends State<CropYieldForm> {
     );
   }
 
-  // Image uploader widget
-  // Widget _buildImageUploader({
-  //   required String title,
-  //   required IconData icon,
-  //   required XFile? file,
-  //   required VoidCallback onPressed,
-  // }) {
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       Text(
-  //         title,
-  //         style: TextStyle(
-  //           fontSize: 14,
-  //           fontWeight: FontWeight.w500,
-  //           color: Colors.green[900],
-  //         ),
-  //       ),
-  //       const SizedBox(height: 8),
-  //       OutlinedButton.icon(
-  //         onPressed: onPressed,
-  //         icon: Icon(icon, size: 16),
-  //         label: Text(file != null ? 'Change Image' : 'Choose Image'),
-  //         style: OutlinedButton.styleFrom(
-  //           foregroundColor: Colors.green[700],
-  //           minimumSize: const Size(double.infinity, 44),
-  //           side: BorderSide(color: Colors.green[300]!),
-  //           shape: RoundedRectangleBorder(
-  //             borderRadius: BorderRadius.circular(8),
-  //           ),
-  //         ),
-  //       ),
-  //       if (file != null)
-  //         Container(
-  //           margin: const EdgeInsets.only(top: 12),
-  //           height: 192,
-  //           width: double.infinity,
-  //           decoration: BoxDecoration(
-  //             borderRadius: BorderRadius.circular(12),
-  //             border: Border.all(color: Colors.green[200]!, width: 2),
-  //           ),
-  //           clipBehavior: Clip.antiAlias,
-  //           child: Image.file(File(file.path), fit: BoxFit.cover),
-  //         ),
-  //     ],
-  //   );
-  // }
-
-  // Dropdown widget
   Widget _buildWeatherDropdown() {
     return DropdownButtonFormField2<String>(
       value: _weather,

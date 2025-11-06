@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'service_screen.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 class DiseaseDetectionScreen extends StatefulWidget {
   const DiseaseDetectionScreen({super.key});
 
@@ -49,9 +49,11 @@ class _DiseaseDetectionScreenState extends State<DiseaseDetectionScreen> {
       final response = await _service.disease(image: _image!);
 
       if (response['success'] == true) {
+        final data = response['data'] as Map<String, dynamic>;
         setState(() {
-          _results = response['data'] as Map<String, dynamic>;
+          _results = data;
         });
+        await _saveResultsToPrefs(data);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -72,6 +74,12 @@ class _DiseaseDetectionScreenState extends State<DiseaseDetectionScreen> {
         _isAnalyzing = false;
       });
     }
+  }
+  Future<void> _saveResultsToPrefs(Map<String, dynamic> data) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('cropType', data['cropType'] ?? '');
+    await prefs.setString('disease', data['disease'] ?? '');
+    await prefs.setDouble('confidence', (data['confidence'] as num).toDouble());
   }
 
   @override

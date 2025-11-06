@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:io';
 
-// Make sure this file is named 'auth_service.dart' or update the path
+
 import 'auth_screen.dart';
 
 class ServiceScreen {
@@ -54,6 +54,9 @@ class ServiceScreen {
     }
   }
 
+
+
+
   Future<Map<dynamic, dynamic>> disease({required File image}) async {
     try {
       final String? token = await _auth.getToken();
@@ -73,7 +76,7 @@ class ServiceScreen {
       request.headers['Authorization'] = 'Bearer $token';
 
       request.files.add(
-        await http.MultipartFile.fromPath('plant_image', image.path),
+        await http.MultipartFile.fromPath('image', image.path),
       );
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
@@ -85,6 +88,52 @@ class ServiceScreen {
           'success': false,
           'message':
               'Image upload failed. Status: ${response.statusCode}, Body: ${response.body}',
+        };
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'An error occurred: $e'};
+    }
+  }
+
+  Future<Map<dynamic,dynamic>> yieldPrediction({
+    required String cropType,
+    required String diseaseClass,
+    required double healthyArea,
+    required double weedArea,
+    required double soilArea,
+  }) async {
+    try {
+      final String? token = await _auth.getToken();
+
+      if (token == null) {
+        return {
+          'success': false,
+          'message': 'User not authenticated. Please log in.',
+        };
+      }
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/inference/yield'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'crop_type': cropType,
+          'disease_class': diseaseClass,
+          'healthy_area': healthyArea,
+          'weed_area': weedArea,
+          'soil_area': soilArea,
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        return {'success': true, 'data': jsonDecode(response.body)};
+      } else {
+        return {
+          'success': false,
+          'message':
+              'Yield prediction failed. Status: ${response.statusCode}, Body: ${response.body}',
         };
       }
     } catch (e) {
